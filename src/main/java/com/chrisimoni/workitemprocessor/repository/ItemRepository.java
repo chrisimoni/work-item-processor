@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ItemRepository extends MongoRepository<Item, String> {
+    long countByValueAndProcessed(int value, boolean status);
 }

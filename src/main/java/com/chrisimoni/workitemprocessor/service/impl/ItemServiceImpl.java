@@ -1,6 +1,7 @@
 package com.chrisimoni.workitemprocessor.service.impl;
 
 import com.chrisimoni.workitemprocessor.collection.Item;
+import com.chrisimoni.workitemprocessor.dto.ItemReportDto;
 import com.chrisimoni.workitemprocessor.exceptions.BadRequestException;
 import com.chrisimoni.workitemprocessor.exceptions.NotFoundException;
 import com.chrisimoni.workitemprocessor.producer.ItemProducer;
@@ -11,8 +12,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -72,5 +77,30 @@ public class ItemServiceImpl implements ItemService {
         item.setResult(item.getValue() * item.getValue());
         itemRepository.save(item);
 
+    }
+
+    @Override
+    public List<ItemReportDto> generteReport() {
+        List<Item> allItems = itemRepository.findAll();
+        //group items by their value
+        Map<Integer, Long> itemCounts = allItems.stream()
+                .collect(Collectors.groupingBy(Item::getValue, Collectors.counting()));
+
+        List<ItemReportDto> itemReportList = new ArrayList<>();
+        for (Map.Entry<Integer, Long> entry : itemCounts.entrySet()) {
+            int value = entry.getKey();
+            long totalItems = entry.getValue();
+            long processedItems = itemRepository.countByValueAndProcessed(value, true);
+
+            ItemReportDto itemReport = ItemReportDto.builder()
+                    .value(value)
+                    .totalItems(totalItems)
+                    .processedItems(processedItems)
+                    .build();
+
+            itemReportList.add(itemReport);
+        }
+
+        return itemReportList;
     }
 }
