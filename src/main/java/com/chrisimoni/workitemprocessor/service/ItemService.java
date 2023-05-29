@@ -9,5 +9,7 @@ public interface ItemService {
     Item getItem(String itemId);
 
     void deleteItem(String itemId);
+
+    void processItem(Item item);
 }
 

@@ -3,6 +3,7 @@ package com.chrisimoni.workitemprocessor.service.impl;
 import com.chrisimoni.workitemprocessor.collection.Item;
 import com.chrisimoni.workitemprocessor.exceptions.BadRequestException;
 import com.chrisimoni.workitemprocessor.exceptions.NotFoundException;
+import com.chrisimoni.workitemprocessor.producer.ItemProducer;
 import com.chrisimoni.workitemprocessor.repository.ItemRepository;
 import com.chrisimoni.workitemprocessor.request.ItemRequestBody;
 import com.chrisimoni.workitemprocessor.service.ItemService;
@@ -11,11 +12,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 @RequiredArgsConstructor
 public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
+    private final ItemProducer itemProducer;
 
     @Override
     public String createItem(ItemRequestBody itemRequestObj) {
@@ -25,7 +28,10 @@ public class ItemServiceImpl implements ItemService {
                 .result(null)
                 .build();
 
-        return itemRepository.save(item).getId();
+        Item createdItem = itemRepository.save(item);
+        itemProducer.enqueueItem(createdItem);
+
+        return createdItem.getId();
     }
 
     @Override
@@ -51,5 +57,20 @@ public class ItemServiceImpl implements ItemService {
         }
 
         itemRepository.delete(item);
+    }
+
+    @Override
+    public void processItem(Item item) {
+        // Simulated delay
+        try {
+            Thread.sleep(item.getValue() * 10);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+
+        item.setProcessed(true);
+        item.setResult(item.getValue() * item.getValue());
+        itemRepository.save(item);
+
     }
 }
