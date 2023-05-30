@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Work Item Report</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+    <!-- jQuery library -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Work Item Report</h1>
+        <button class="btn btn-lg btn-primary" onclick="location.reload();">Refresh</button>
+        <table id="reportTable" class="table table-bordered">
+            <thead>
+            <tr>
+                <th>Work Item Value</th>
+                <th>Total Items</th>
+                <th>Processed Items</th>
+            </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+
+
+   <script>
+       $(document).ready(function() {
+
+           loadReport();
+       });
+
+       function loadReport() {
+           console.log(window.location + "api/vi/items/report")
+           $.ajax({
+               url: window.location + "api/vi/items/report",
+               type: "GET",
+               dataType: "json",
+               success: function(reportData) {
+                   var tbody = $("#reportTable tbody");
+                   tbody.empty();
+                   console.log(reportData)
+                   reportData.data.forEach(function(reportItem) {
+                       var row = "<tr>" +
+                           "<td>" + reportItem.value + "</td>" +
+                           "<td>" + reportItem.totalItems + "</td>" +
+                           "<td>" + reportItem.processedItems + "</td>" +
+                           "</tr>";
+
+                       tbody.append(row);
+                   });
+               },
+               error: function() {
+                   alert("Error occurred while fetching the report.");
+               }
+           });
+       }
+   </script>
+</body>
+</html>
