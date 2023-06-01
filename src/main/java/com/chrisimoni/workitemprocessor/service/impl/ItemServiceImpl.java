@@ -7,6 +7,7 @@ import com.chrisimoni.workitemprocessor.exceptions.NotFoundException;
 import com.chrisimoni.workitemprocessor.producer.ItemProducer;
 import com.chrisimoni.workitemprocessor.repository.ItemRepository;
 import com.chrisimoni.workitemprocessor.request.ItemRequestBody;
+import com.chrisimoni.workitemprocessor.scheduler.AsyncSchedulerTask;
 import com.chrisimoni.workitemprocessor.service.ItemService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -24,6 +25,7 @@ import java.util.stream.Collectors;
 public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
     private final ItemProducer itemProducer;
+    private final AsyncSchedulerTask asyncSchedulerTask;
 
     @Override
     public String createItem(ItemRequestBody itemRequestObj) {
@@ -34,7 +36,6 @@ public class ItemServiceImpl implements ItemService {
                 .build();
 
         Item createdItem = itemRepository.save(item);
-        itemProducer.enqueueItem(createdItem);
 
         return createdItem.getId();
     }
@@ -102,5 +103,10 @@ public class ItemServiceImpl implements ItemService {
         }
 
         return itemReportList;
+    }
+
+    @Override
+    public void generteItems() {
+        asyncSchedulerTask.generateAndProccessItems();
     }
 }

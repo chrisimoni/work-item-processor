@@ -45,4 +45,12 @@ public class ItemController {
         ApiResponse response = ApiResponse.builder().status("success").data(itemReportList).build();
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
+    @GetMapping("/generate-items")
+    public ResponseEntity<?> generateItems() {
+        itemService.generteItems();
+        ApiResponse response = ApiResponse.builder().status("success")
+                .message("Request to generate 1000 items is processing").build();
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 }

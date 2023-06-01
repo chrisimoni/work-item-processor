@@ -30,11 +30,8 @@ public class ItemServiceImplTest {
     @Mock
     private ItemRepository itemRepository;
 
-    @Mock
-    private ItemProducer itemProducer;
-
     @Test
-    void testCreateItem_ShouldCreateAndEnqueueItem() {
+    void testCreateItem_ShouldCreateItem() {
         ItemRequestBody itemRequestObj = ItemRequestBody.builder().value(5).build();
         Item createdItem = new Item("1234566", 5, false, null);
 
@@ -44,7 +41,6 @@ public class ItemServiceImplTest {
 
         assertEquals(createdItem.getId(), itemId);
         verify(itemRepository, times(1)).save(any(Item.class));
-        verify(itemProducer, times(1)).enqueueItem(any(Item.class));
     }
 
     @Test
@@ -135,6 +131,4 @@ public class ItemServiceImplTest {
         verify(itemRepository, times(1)).countByValueAndProcessed(7, true);
         verify(itemRepository, times(1)).countByValueAndProcessed(2, true);
     }
-
-
 }

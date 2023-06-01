@@ -16,5 +16,7 @@ public interface ItemService {
     void processItem(Item item);
 
     List<ItemReportDto> generteReport();
+
+    void generteItems();
 }
 
