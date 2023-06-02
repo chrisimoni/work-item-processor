@@ -18,7 +18,7 @@ public class AsyncSchedulerTask {
     private final ItemRepository itemRepository;
     private final ItemProducer itemProducer;
 
-    @Scheduled(fixedRate = 10000) // Runs every 10 seconds
+    @Scheduled(fixedRate = 60000) // Runs every 60 seconds (1 minute)
     public void scheduleItemsForProcessing() {
         List<Item> items = itemRepository.findTop100ByProcessedFalse();
         if(items.isEmpty()) {
