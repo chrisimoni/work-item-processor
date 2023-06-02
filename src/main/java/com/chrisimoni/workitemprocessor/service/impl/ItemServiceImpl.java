@@ -9,15 +9,20 @@ import com.chrisimoni.workitemprocessor.repository.ItemRepository;
 import com.chrisimoni.workitemprocessor.request.ItemRequestBody;
 import com.chrisimoni.workitemprocessor.scheduler.AsyncSchedulerTask;
 import com.chrisimoni.workitemprocessor.service.ItemService;
+import com.chrisimoni.workitemprocessor.util.ReportUtil;
 import lombok.RequiredArgsConstructor;
+import net.sf.jasperreports.engine.*;
+import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
+import net.sf.jasperreports.engine.design.*;
+import net.sf.jasperreports.engine.xml.JRXmlLoader;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 @Service
@@ -109,4 +114,52 @@ public class ItemServiceImpl implements ItemService {
     public void generteItems() {
         asyncSchedulerTask.generateAndProccessItems();
     }
+
+    @Override
+    public byte[] generateReportToDownload() throws JRException {
+        // Generate user data
+        List<ItemReportDto> items = generteReport();
+        byte[] pdfBytes = ReportUtil.generateJasperReport(items);
+
+        return pdfBytes;
+    }
+
+
+
+
+    /*private JasperDesign createReportTemplate() throws JRException {
+        // Create a new JasperDesign
+        JasperDesign jasperDesign = new JasperDesign();
+
+        // Set properties of the JasperDesign
+        jasperDesign.setName("ItemReport");
+        jasperDesign.setPageWidth(595); // Set the page width in pixels
+        jasperDesign.setPageHeight(842); // Set the page height in pixels
+        jasperDesign.setColumnWidth(555); // Set the column width in pixels
+
+
+
+        // Create a detail band
+        JRDesignBand detailBand = new JRDesignBand();
+        detailBand.setHeight(30); // Set the height as needed
+
+        // Create text fields in the detail band for displaying item data
+        JRDesignTextField valueTextField = new JRDesignTextField();
+        valueTextField.setExpression(new JRDesignExpression("$F{value}")); // Set the field expression
+        valueTextField.setX(10); // Set the x-coordinate position
+        valueTextField.setY(10); // Set the y-coordinate position
+        valueTextField.setWidth(100); // Set the width as needed
+        valueTextField.setHeight(20); // Set the height as needed
+        detailBand.addElement(valueTextField);
+
+        // Set the detail section to the JasperDesign
+        ((JRDesignSection) jasperDesign.getDetailSection()).addBand(detailBand);
+        // Save the JasperDesign as JRXML file
+//        String jrxmlFile = "path/to/reportTemplate.jrxml";
+//        JasperCompileManager.writeReportToXmlFile(jasperDesign, jrxmlFile);
+
+        return jasperDesign;
+    }*/
+
+
 }
